@@ -21,6 +21,7 @@ type OrderRepository interface {
 }
 
 type OrderStore struct {
+	//logger   slog.Logger
 	filePath string
 	mutex    sync.RWMutex
 	orders   []models.Order
@@ -29,10 +30,14 @@ type OrderStore struct {
 
 func NewOrderStore(filePath string) *OrderStore {
 	o := &OrderStore{
+		//logger:   *logger,
 		filePath: filePath,
 		nextID:   1,
 	}
-	o.LoadFromFile()
+	err := o.LoadFromFile()
+	if err != nil {
+		log.Printf("error loading: %v", err)
+	}
 	return o
 }
 
@@ -60,7 +65,13 @@ func (o *OrderStore) CreateOrder(ord *models.CreateOrderMod) (models.Order, erro
 }
 
 func (o *OrderStore) GetAll() ([]models.Order, error) {
-	return nil, nil
+
+	err := o.LoadFromFile()
+	if err != nil {
+		log.Printf("error loading: %v", err)
+	}
+
+	return o.orders, nil
 }
 
 func (o *OrderStore) GetOrder(id string) (models.Order, error) {
@@ -96,7 +107,7 @@ func (o *OrderStore) LoadFromFile() error {
 
 	file, err := os.ReadFile(o.filePath)
 	if err != nil {
-		if errors.Is(os.ErrNotExist, err) {
+		if errors.Is(err, os.ErrNotExist) || len(file) == 0 {
 			o.orders = []models.Order{}
 			o.nextID = 1
 			return nil
@@ -105,6 +116,11 @@ func (o *OrderStore) LoadFromFile() error {
 	}
 	err = json.Unmarshal(file, &o.orders)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) || len(file) == 0 {
+			o.orders = []models.Order{}
+			o.nextID = 1
+			return nil
+		}
 		return err
 	}
 	o.nextID = len(o.orders) + 1

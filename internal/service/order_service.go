@@ -7,6 +7,7 @@ import (
 
 type OrderService interface {
 	CreateOrder(ord *models.CreateOrderMod) (models.Order, error)
+	GetAll() ([]models.Order, error)
 }
 
 type OrderLogic struct {
@@ -21,4 +22,8 @@ func NewOrderLogic(orderRepo dal.OrderRepository) OrderService {
 
 func (s *OrderLogic) CreateOrder(ord *models.CreateOrderMod) (models.Order, error) {
 	return s.orderRepo.CreateOrder(ord)
+}
+
+func (s *OrderLogic) GetAll() ([]models.Order, error) {
+	return s.orderRepo.GetAll()
 }

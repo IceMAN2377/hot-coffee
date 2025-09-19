@@ -12,6 +12,8 @@ import (
 
 func main() {
 
+	//logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	filePath := "orders.json"
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
@@ -26,6 +28,7 @@ func main() {
 	orderHand := handler.NewOrderHandler(orderServ)
 
 	mux.HandleFunc("POST /orders", orderHand.CreateOrder)
+	mux.HandleFunc("GET /orders", orderHand.GetAll)
 
 	err = http.ListenAndServe(":8080", mux)
 	if err != nil {

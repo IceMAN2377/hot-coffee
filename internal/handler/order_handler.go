@@ -32,3 +32,11 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(order)
 
 }
+
+func (h *OrderHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	orders, err := h.orderServ.GetAll()
+	if err != nil {
+		log.Printf("failed to get all orders: %v", err)
+	}
+	json.NewEncoder(w).Encode(orders)
+}
