@@ -46,5 +46,37 @@
   ],
   "status": "open",
   "created_at": "2025-09-19 17:54:58"
+ },
+ {
+  "order_id": "4",
+  "customer_name": "Johnathan Pie",
+  "items": [
+   {
+    "product_id": "espresso",
+    "quantity": 2
+   },
+   {
+    "product_id": "croissant",
+    "quantity": 1
+   }
+  ],
+  "status": "open",
+  "created_at": "2025-09-20 23:54:45"
+ },
+ {
+  "order_id": "5",
+  "customer_name": "Randy Doherty",
+  "items": [
+   {
+    "product_id": "espresso",
+    "quantity": 2
+   },
+   {
+    "product_id": "croissant",
+    "quantity": 1
+   }
+  ],
+  "status": "open",
+  "created_at": "2025-09-20 23:55:10"
  }
 ]

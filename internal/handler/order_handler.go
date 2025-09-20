@@ -40,3 +40,13 @@ func (h *OrderHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(orders)
 }
+
+func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	order, err := h.orderServ.GetOrder(id)
+	if err != nil {
+		log.Printf("failed to get order by id: %v", err)
+	}
+	json.NewEncoder(w).Encode(order)
+}

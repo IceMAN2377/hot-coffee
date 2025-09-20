@@ -7,15 +7,16 @@ import (
 	"github.com/IceMAN2377/hot-coffee/internal/models"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 )
 
 type OrderRepository interface {
-	CreateOrder(ord *models.CreateOrderMod) (models.Order, error)
+	CreateOrder(ord *models.CreateOrderMod) (*models.Order, error)
 	GetAll() ([]models.Order, error)
-	GetOrder(id string) (models.Order, error)
-	UpdateOrder(id string) (models.Order, error)
+	GetOrder(id string) (*models.Order, error)
+	UpdateOrder(id string) (*models.Order, error)
 	DeleteOrder(id string) error
 	CloseOrder(id string) error
 }
@@ -41,7 +42,7 @@ func NewOrderStore(filePath string) *OrderStore {
 	return o
 }
 
-func (o *OrderStore) CreateOrder(ord *models.CreateOrderMod) (models.Order, error) {
+func (o *OrderStore) CreateOrder(ord *models.CreateOrderMod) (*models.Order, error) {
 	id := fmt.Sprintf("%d", o.nextID)
 	status := "open"
 	currentTime := time.Now().Format("2006-01-02 15:04:05")
@@ -61,7 +62,7 @@ func (o *OrderStore) CreateOrder(ord *models.CreateOrderMod) (models.Order, erro
 	}
 	o.nextID++
 
-	return order, nil
+	return &order, nil
 }
 
 func (o *OrderStore) GetAll() ([]models.Order, error) {
@@ -74,12 +75,17 @@ func (o *OrderStore) GetAll() ([]models.Order, error) {
 	return o.orders, nil
 }
 
-func (o *OrderStore) GetOrder(id string) (models.Order, error) {
-	return models.Order{}, nil
+func (o *OrderStore) GetOrder(id string) (*models.Order, error) {
+	idInt, _ := strconv.Atoi(id)
+	err := o.LoadFromFile()
+	if err != nil {
+		log.Printf("error loading by id :%v", err)
+	}
+	return &o.orders[idInt-1], nil
 }
 
-func (o *OrderStore) UpdateOrder(id string) (models.Order, error) {
-	return models.Order{}, nil
+func (o *OrderStore) UpdateOrder(id string) (*models.Order, error) {
+	return &models.Order{}, nil
 }
 
 func (o *OrderStore) DeleteOrder(id string) error {
