@@ -16,7 +16,7 @@ type OrderRepository interface {
 	CreateOrder(ord *models.CreateOrderMod) (*models.Order, error)
 	GetAll() ([]models.Order, error)
 	GetOrder(id string) (*models.Order, error)
-	UpdateOrder(id string) (*models.Order, error)
+	UpdateOrder(id string, items []models.OrderItem) (*models.Order, error)
 	DeleteOrder(id string) error
 	CloseOrder(id string) error
 }
@@ -84,8 +84,27 @@ func (o *OrderStore) GetOrder(id string) (*models.Order, error) {
 	return &o.orders[idInt-1], nil
 }
 
-func (o *OrderStore) UpdateOrder(id string) (*models.Order, error) {
-	return &models.Order{}, nil
+func (o *OrderStore) UpdateOrder(id string, items []models.OrderItem) (*models.Order, error) {
+
+	idInt, _ := strconv.Atoi(id)
+
+	err := o.LoadFromFile()
+	if err != nil {
+		log.Printf("error loading by id :%v", err)
+	}
+
+	if len(o.orders) < idInt {
+		log.Printf("id doesnot exist: %v", err)
+		return nil, err
+	}
+
+	o.orders[idInt-1].Items = items
+
+	if err := o.SaveToFile(o.orders); err != nil {
+		log.Fatal("failed to save to order json")
+	}
+
+	return &o.orders[idInt-1], nil
 }
 
 func (o *OrderStore) DeleteOrder(id string) error {

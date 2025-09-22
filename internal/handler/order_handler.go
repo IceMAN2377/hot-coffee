@@ -50,3 +50,19 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(order)
 }
+
+func (h *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	var items []models.OrderItem
+
+	if err := json.NewDecoder(r.Body).Decode(&items); err != nil {
+		log.Printf("failed to decode put request: %v", err)
+	}
+
+	updOrder, err := h.orderServ.UpdateOrder(id, items)
+	if err != nil {
+		log.Printf("failed to update order by id: %v", err)
+	}
+	json.NewEncoder(w).Encode(updOrder)
+}

@@ -9,6 +9,7 @@ type OrderService interface {
 	CreateOrder(ord *models.CreateOrderMod) (*models.Order, error)
 	GetAll() ([]models.Order, error)
 	GetOrder(id string) (*models.Order, error)
+	UpdateOrder(id string, items []models.OrderItem) (*models.Order, error)
 }
 
 type OrderLogic struct {
@@ -31,4 +32,8 @@ func (s *OrderLogic) GetAll() ([]models.Order, error) {
 
 func (s *OrderLogic) GetOrder(id string) (*models.Order, error) {
 	return s.orderRepo.GetOrder(id)
+}
+
+func (s *OrderLogic) UpdateOrder(id string, items []models.OrderItem) (*models.Order, error) {
+	return s.orderRepo.UpdateOrder(id, items)
 }
