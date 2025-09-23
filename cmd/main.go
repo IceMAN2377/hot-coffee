@@ -31,6 +31,7 @@ func main() {
 	mux.HandleFunc("GET /orders", orderHand.GetAll)
 	mux.HandleFunc("GET /orders/{id}", orderHand.GetOrder)
 	mux.HandleFunc("PUT /orders/{id}", orderHand.UpdateOrder)
+	mux.HandleFunc("DELETE /orders/{id}", orderHand.DeleteOrder)
 
 	err = http.ListenAndServe(":8080", mux)
 	if err != nil {

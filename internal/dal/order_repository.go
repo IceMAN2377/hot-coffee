@@ -93,7 +93,7 @@ func (o *OrderStore) UpdateOrder(id string, items []models.OrderItem) (*models.O
 		log.Printf("error loading by id :%v", err)
 	}
 
-	if len(o.orders) < idInt {
+	if len(o.orders) < idInt || len(o.orders) > idInt {
 		log.Printf("id doesnot exist: %v", err)
 		return nil, err
 	}
@@ -108,6 +108,24 @@ func (o *OrderStore) UpdateOrder(id string, items []models.OrderItem) (*models.O
 }
 
 func (o *OrderStore) DeleteOrder(id string) error {
+	idInt, _ := strconv.Atoi(id)
+
+	err := o.LoadFromFile()
+	if err != nil {
+		log.Printf("error loading by id :%v", err)
+	}
+
+	//if len(o.orders) > idInt {
+	//	log.Printf("id doesnot exist: %v", err)
+	//	return err
+	//}
+
+	o.orders[idInt-1] = models.Order{}
+
+	if err := o.SaveToFile(o.orders); err != nil {
+		log.Fatal("failed to save to order json")
+	}
+
 	return nil
 }
 

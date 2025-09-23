@@ -66,3 +66,11 @@ func (h *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(updOrder)
 }
+
+func (h *OrderHandler) DeleteOrder(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	delOrder := h.orderServ.DeleteOrder(id)
+
+	json.NewEncoder(w).Encode(delOrder)
+}
