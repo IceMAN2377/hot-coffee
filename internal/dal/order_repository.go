@@ -66,12 +66,6 @@ func (o *OrderStore) CreateOrder(ord *models.CreateOrderMod) (*models.Order, err
 }
 
 func (o *OrderStore) GetAll() ([]models.Order, error) {
-
-	err := o.LoadFromFile()
-	if err != nil {
-		log.Printf("error loading: %v", err)
-	}
-
 	return o.orders, nil
 }
 
@@ -115,11 +109,6 @@ func (o *OrderStore) DeleteOrder(id string) error {
 		log.Printf("error loading by id :%v", err)
 	}
 
-	//if len(o.orders) > idInt {
-	//	log.Printf("id doesnot exist: %v", err)
-	//	return err
-	//}
-
 	o.orders[idInt-1] = models.Order{}
 
 	if err := o.SaveToFile(o.orders); err != nil {
@@ -130,6 +119,19 @@ func (o *OrderStore) DeleteOrder(id string) error {
 }
 
 func (o *OrderStore) CloseOrder(id string) error {
+	idInt, _ := strconv.Atoi(id)
+
+	err := o.LoadFromFile()
+	if err != nil {
+		log.Printf("error loading by id :%v", err)
+	}
+
+	o.orders[idInt-1].Status = "closed"
+
+	if err := o.SaveToFile(o.orders); err != nil {
+		log.Fatal("failed to save to order json")
+	}
+
 	return nil
 }
 

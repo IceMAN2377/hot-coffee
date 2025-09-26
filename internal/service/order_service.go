@@ -11,6 +11,7 @@ type OrderService interface {
 	GetOrder(id string) (*models.Order, error)
 	UpdateOrder(id string, items []models.OrderItem) (*models.Order, error)
 	DeleteOrder(id string) error
+	CloseOrder(id string) error
 }
 
 type OrderLogic struct {
@@ -41,4 +42,8 @@ func (s *OrderLogic) UpdateOrder(id string, items []models.OrderItem) (*models.O
 
 func (s *OrderLogic) DeleteOrder(id string) error {
 	return s.orderRepo.DeleteOrder(id)
+}
+
+func (s *OrderLogic) CloseOrder(id string) error {
+	return s.orderRepo.CloseOrder(id)
 }

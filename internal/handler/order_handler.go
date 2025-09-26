@@ -22,14 +22,17 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var ord models.CreateOrderMod
 
 	if err := json.NewDecoder(r.Body).Decode(&ord); err != nil {
-		log.Println("failed to decode order")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	order, err := h.orderServ.CreateOrder(&ord)
-	if err != nil {
-		log.Println("failed to send order to service layer")
+	order, _ := h.orderServ.CreateOrder(&ord)
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusCreated)
+
+	if err := json.NewEncoder(w).Encode(order); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	json.NewEncoder(w).Encode(order)
 
 }
 
@@ -38,7 +41,9 @@ func (h *OrderHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("failed to get all orders: %v", err)
 	}
-	json.NewEncoder(w).Encode(orders)
+	if err := json.NewEncoder(w).Encode(orders); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
 
 func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +53,9 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("failed to get order by id: %v", err)
 	}
-	json.NewEncoder(w).Encode(order)
+	if err := json.NewEncoder(w).Encode(order); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
 
 func (h *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
@@ -57,14 +64,16 @@ func (h *OrderHandler) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	var items []models.OrderItem
 
 	if err := json.NewDecoder(r.Body).Decode(&items); err != nil {
-		log.Printf("failed to decode put request: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	updOrder, err := h.orderServ.UpdateOrder(id, items)
 	if err != nil {
 		log.Printf("failed to update order by id: %v", err)
 	}
-	json.NewEncoder(w).Encode(updOrder)
+	if err := json.NewEncoder(w).Encode(updOrder); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
 
 func (h *OrderHandler) DeleteOrder(w http.ResponseWriter, r *http.Request) {
@@ -72,5 +81,17 @@ func (h *OrderHandler) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 
 	delOrder := h.orderServ.DeleteOrder(id)
 
-	json.NewEncoder(w).Encode(delOrder)
+	if err := json.NewEncoder(w).Encode(delOrder); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}
+
+func (h *OrderHandler) CloseOrder(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	closeOrder := h.orderServ.CloseOrder(id)
+
+	if err := json.NewEncoder(w).Encode(closeOrder); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 }
