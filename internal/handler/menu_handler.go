@@ -83,3 +83,16 @@ func (h *MenuHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
+
+func (h *MenuHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	delItem := h.menuServ.DeleteItem(id)
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(w).Encode(delItem); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+}

@@ -10,6 +10,7 @@ type MenuService interface {
 	GetItems() ([]models.MenuItem, error)
 	GetItem(id string) (*models.MenuItem, error)
 	UpdateItem(id string, item *models.MenuItem) (*models.MenuItem, error)
+	DeleteItem(id string) error
 }
 
 type MenuLogic struct {
@@ -36,4 +37,8 @@ func (s *MenuLogic) GetItem(id string) (*models.MenuItem, error) {
 
 func (s *MenuLogic) UpdateItem(id string, item *models.MenuItem) (*models.MenuItem, error) {
 	return s.menuRepo.UpdateItem(id, item)
+}
+
+func (s *MenuLogic) DeleteItem(id string) error {
+	return s.menuRepo.DeleteItem(id)
 }

@@ -100,6 +100,17 @@ func (m *MenuStore) UpdateItem(id string, item *models.MenuItem) (*models.MenuIt
 }
 
 func (m *MenuStore) DeleteItem(id string) error {
+
+	for i := 0; i < len(m.menuItems); i++ {
+		if id == m.menuItems[i].ID {
+			m.menuItems[i] = models.MenuItem{}
+		}
+	}
+
+	if err := m.SaveToFile(m.menuItems); err != nil {
+		log.Fatal("failed to save to menu json")
+	}
+
 	return nil
 }
 

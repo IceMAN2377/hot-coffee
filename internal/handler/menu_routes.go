@@ -12,4 +12,5 @@ func RegisterMenu(router *http.ServeMux, menuServ service.MenuService) {
 	router.HandleFunc("GET /menu", handler.GetItems)
 	router.HandleFunc("GET /menu/{id}", handler.GetItem)
 	router.HandleFunc("PUT /menu/{id}", handler.UpdateItem)
+	router.HandleFunc("DELETE /menu/{id}", handler.DeleteItem)
 }
