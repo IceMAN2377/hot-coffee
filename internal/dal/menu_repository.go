@@ -60,7 +60,7 @@ func (m *MenuStore) GetItem(id string) (*models.MenuItem, error) {
 			return &items, nil
 		}
 	}
-	return &models.MenuItem{}, nil
+	return nil, errors.New("item not found")
 }
 
 func (m *MenuStore) UpdateItem(id string, item *models.MenuItem) (*models.MenuItem, error) {
@@ -103,15 +103,12 @@ func (m *MenuStore) DeleteItem(id string) error {
 
 	for i := 0; i < len(m.menuItems); i++ {
 		if id == m.menuItems[i].ID {
-			m.menuItems[i] = models.MenuItem{}
+			m.menuItems = append(m.menuItems[:i], m.menuItems[i+1:]...)
+			return m.SaveToFile(m.menuItems)
 		}
 	}
 
-	if err := m.SaveToFile(m.menuItems); err != nil {
-		log.Fatal("failed to save to menu json")
-	}
-
-	return nil
+	return errors.New("item not found")
 }
 
 func (m *MenuStore) SaveToFile(menu []models.MenuItem) error {

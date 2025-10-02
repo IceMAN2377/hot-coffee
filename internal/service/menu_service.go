@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/IceMAN2377/hot-coffee/internal/dal"
 	"github.com/IceMAN2377/hot-coffee/internal/models"
 )
@@ -36,6 +37,9 @@ func (s *MenuLogic) GetItem(id string) (*models.MenuItem, error) {
 }
 
 func (s *MenuLogic) UpdateItem(id string, item *models.MenuItem) (*models.MenuItem, error) {
+	if item.Price < 0 {
+		return nil, errors.New("price cannot be negatives")
+	}
 	return s.menuRepo.UpdateItem(id, item)
 }
 

@@ -22,6 +22,7 @@ func (h *MenuHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	menuPosition, _ := h.menuServ.AddItem(item)
@@ -31,6 +32,7 @@ func (h *MenuHandler) AddItem(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(menuPosition); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 }
 
@@ -42,6 +44,7 @@ func (h *MenuHandler) GetItems(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(items); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 }
@@ -51,7 +54,8 @@ func (h *MenuHandler) GetItem(w http.ResponseWriter, r *http.Request) {
 
 	item, err := h.menuServ.GetItem(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -59,6 +63,7 @@ func (h *MenuHandler) GetItem(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(item); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 }
 
@@ -69,30 +74,33 @@ func (h *MenuHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	updItem, err := h.menuServ.UpdateItem(id, item)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(updItem); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 }
 
 func (h *MenuHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	delItem := h.menuServ.DeleteItem(id)
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(w).Encode(delItem); err != nil {
+	err := h.menuServ.DeleteItem(id)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
+
 }
