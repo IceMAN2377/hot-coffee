@@ -16,11 +16,15 @@ type OrderService interface {
 
 type OrderLogic struct {
 	orderRepo dal.OrderRepository
+	menuServ  MenuService
+	invServ   InventoryService
 }
 
-func NewOrderLogic(orderRepo dal.OrderRepository) OrderService {
+func NewOrderLogic(orderRepo dal.OrderRepository, menuServ MenuService, invServ InventoryService) OrderService {
 	return &OrderLogic{
 		orderRepo: orderRepo,
+		menuServ:  menuServ,
+		invServ:   invServ,
 	}
 }
 

@@ -21,10 +21,6 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	orderRepo := dal.NewOrderStore(filePathOrder)
-	orderServ := service.NewOrderLogic(orderRepo)
-	handler.RegisterOrder(mux, orderServ)
-
 	filePathMenu := "menu.json"
 
 	menuRepo := dal.NewMenuStore(filePathMenu)
@@ -36,6 +32,10 @@ func main() {
 	invRepo := dal.NewInventoryStore(filePathInv)
 	invServ := service.NewInventoryLogic(invRepo)
 	handler.RegisterInventory(mux, invServ)
+
+	orderRepo := dal.NewOrderStore(filePathOrder, menuRepo, invRepo)
+	orderServ := service.NewOrderLogic(orderRepo, menuServ, invServ)
+	handler.RegisterOrder(mux, orderServ)
 
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {

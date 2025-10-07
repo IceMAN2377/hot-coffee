@@ -19,6 +19,7 @@ type OrderRepository interface {
 	UpdateOrder(id string, items []models.OrderItem) (*models.Order, error)
 	DeleteOrder(id string) error
 	CloseOrder(id string) error
+	CalculateIngredients(items []models.OrderItem) (map[string]models.InventoryItem, error)
 }
 
 type OrderStore struct {
@@ -27,13 +28,17 @@ type OrderStore struct {
 	mutex    sync.RWMutex
 	orders   []models.Order
 	nextID   int
+	menuRepo MenuRepository
+	invRepo  InventoryRepository
 }
 
-func NewOrderStore(filePath string) *OrderStore {
+func NewOrderStore(filePath string, menuRepo MenuRepository, invRepo InventoryRepository) *OrderStore {
 	o := &OrderStore{
 		//logger:   *logger,
 		filePath: filePath,
 		nextID:   1,
+		menuRepo: menuRepo,
+		invRepo:  invRepo,
 	}
 	err := o.LoadFromFile()
 	if err != nil {
@@ -53,6 +58,24 @@ func (o *OrderStore) CreateOrder(ord *models.CreateOrderMod) (*models.Order, err
 		Items:        ord.Items,
 		Status:       status,
 		CreatedAt:    currentTime,
+	}
+
+	requiredIngredients, err := o.CalculateIngredients(ord.Items)
+	if err != nil {
+		return nil, err
+	}
+
+	isEnough, err := o.invRepo.CheckAvailability(requiredIngredients)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isEnough {
+		return nil, errors.New("insufficient ingredients for order")
+	}
+
+	if err := o.invRepo.DeductFromInventory(requiredIngredients); err != nil {
+		return nil, errors.New("error deducting from inventory")
 	}
 
 	o.orders = append(o.orders, order)
@@ -170,4 +193,33 @@ func (o *OrderStore) LoadFromFile() error {
 	}
 	o.nextID = len(o.orders) + 1
 	return nil
+}
+
+func (o *OrderStore) CalculateIngredients(items []models.OrderItem) (map[string]models.InventoryItem, error) {
+	reqIngr := make(map[string]models.InventoryItem)
+
+	for _, item := range items {
+		menuPosition, err := o.menuRepo.GetItem(item.ProductID)
+		if err != nil {
+			return nil, err
+		}
+		for _, menuItemIngred := range menuPosition.Ingredients {
+			required := menuItemIngred.Quantity * float64(item.Quantity)
+
+			if existing, exists := reqIngr[menuItemIngred.IngredientID]; exists {
+				// Aggregate quantities for same ingredient
+				existing.Quantity += required
+				reqIngr[menuItemIngred.IngredientID] = existing
+			} else {
+				// Create new inventory item for this ingredient
+				reqIngr[menuItemIngred.IngredientID] = models.InventoryItem{
+					IngredientID: menuItemIngred.IngredientID,
+					Name:         "", // Will be populated when checking inventory
+					Quantity:     required,
+					Unit:         "",
+				}
+			}
+		}
+	}
+	return reqIngr, nil
 }

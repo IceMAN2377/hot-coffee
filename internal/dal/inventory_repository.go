@@ -16,6 +16,8 @@ type InventoryRepository interface {
 	GetItem(id string) (*models.InventoryItem, error)
 	UpdateItem(id string, item *models.InventoryItem) (*models.InventoryItem, error)
 	DeleteItem(id string) error
+	CheckAvailability(reqIngreds map[string]models.InventoryItem) (bool, error)
+	DeductFromInventory(reqIngreds map[string]models.InventoryItem) error
 }
 
 type InventoryStore struct {
@@ -141,4 +143,38 @@ func (v *InventoryStore) LoadFromFile() error {
 		return err
 	}
 	return nil
+}
+
+func (v *InventoryStore) CheckAvailability(reqIngreds map[string]models.InventoryItem) (bool, error) {
+	for reqID, reqItem := range reqIngreds {
+		invItem, err := v.GetItem(reqID)
+		if err != nil {
+			return false, errors.New("ingredient " + reqID + " not found in inventory")
+		}
+		if invItem.Quantity < reqItem.Quantity {
+			return false, errors.New("insufficient quantity for " + reqID)
+		}
+	}
+	return true, nil
+}
+
+func (v *InventoryStore) DeductFromInventory(reqIngreds map[string]models.InventoryItem) error {
+	if err := v.LoadFromFile(); err != nil {
+		return err
+	}
+
+	for reqID, reqItem := range reqIngreds {
+		found := false
+		for i := 0; i < len(v.invItems); i++ {
+			if v.invItems[i].IngredientID == reqID {
+				v.invItems[i].Quantity -= reqItem.Quantity
+				found = true
+				break
+			}
+		}
+		if !found {
+			return errors.New("ingredient " + reqID + " not found in inventory")
+		}
+	}
+	return v.SaveToFile(v.invItems)
 }
