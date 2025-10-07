@@ -31,6 +31,12 @@ func main() {
 	menuServ := service.NewMenuLogic(menuRepo)
 	handler.RegisterMenu(mux, menuServ)
 
+	filePathInv := "inventory.json"
+
+	invRepo := dal.NewInventoryStore(filePathInv)
+	invServ := service.NewInventoryLogic(invRepo)
+	handler.RegisterInventory(mux, invServ)
+
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
 		fmt.Println("error connecting")

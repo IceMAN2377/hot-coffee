@@ -18,16 +18,16 @@
  {
   "product_id": "mocha",
   "name": "Mocha",
-  "description": "Espresso with steamed milk",
+  "description": "hui",
   "price": 3.5,
   "ingredients": [
    {
-    "ingredient_id": "espresso_shot",
-    "quantity": 1
+    "ingredient_id": "Hui",
+    "quantity": 2
    },
    {
-    "ingredient_id": "milk",
-    "quantity": 200
+    "ingredient_id": "zhopa",
+    "quantity": 4
    }
   ]
  },
